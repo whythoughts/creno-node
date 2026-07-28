@@ -4,8 +4,8 @@ Official Node.js/TypeScript client for [Créno](https://crenoapp.com)'s
 scheduling and booking API. Zero runtime dependencies, built on Node
 18+'s native `fetch`.
 
-For a browser widget, see [`@creno/react`](../react-booking-widget) or
-[`@creno/vue`](../vue) instead. This package is for calling the API from
+For a browser widget, see [`@creno/react`](https://github.com/whythoughts/creno-react) or
+[`@creno/vue`](https://github.com/whythoughts/creno-vue) instead. This package is for calling the API from
 your own backend.
 
 ## Install
@@ -73,7 +73,7 @@ try {
 
 All of the above extend `CrenoError` (`.statusCode`, `.responseBody`).
 
-This matches the [Python client](../python-sdk)'s exception taxonomy
+This matches the [Python client](https://github.com/whythoughts/creno-python)'s exception taxonomy
 one-for-one, the same failure means the same thing to catch, in either
 language.
 
@@ -89,7 +89,7 @@ same slot.
 
 ## License
 
-[MIT](./LICENSE). See [CHANGELOG.md](./CHANGELOG.md) for release history and the repo root's [SECURITY.md](../../SECURITY.md) to report a vulnerability.
+[MIT](./LICENSE). See [CHANGELOG.md](./CHANGELOG.md) for release history and [SECURITY.md](./SECURITY.md) to report a vulnerability.
 
 ---
 
