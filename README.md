@@ -2,7 +2,8 @@
 
 Official Node.js/TypeScript client for [Créno](https://crenoapp.com)'s
 scheduling and booking API. Zero runtime dependencies, built on Node
-18+'s native `fetch`.
+18+'s native `fetch`. Ships both ESM and CommonJS builds, so `import` and
+`require` both work, with TypeScript types for each.
 
 For a browser widget, see [`@creno/react`](https://github.com/whythoughts/creno-react) or
 [`@creno/vue`](https://github.com/whythoughts/creno-vue) instead. This package is for calling the API from
@@ -18,6 +19,7 @@ npm install @creno/node
 
 ```ts
 import { CrenoClient } from "@creno/node";
+// CommonJS: const { CrenoClient } = require("@creno/node");
 
 const client = new CrenoClient("pk_live_...");
 
@@ -34,7 +36,7 @@ const booking = await client.createBooking({
 
 The API key is the same publishable key used by Creno's browser widgets.
 In the browser, safety comes from Creno's origin allowlist, not from
-keeping the key secret, but this client makes server-to-server calls
+keeping the key secret. But this client calls the API from your server,
 with no `Origin` header, so that check never applies here. Treat the key
 as sensitive in your own backend (env var, secrets manager, not
 committed to source control).
@@ -51,7 +53,7 @@ try {
   await client.createBooking({ /* ... */ });
 } catch (err) {
   if (err instanceof CrenoConflictError) {
-    // that slot was just taken, re-fetch availability and retry
+    // that slot was just taken, fetch availability again and retry
   } else if (err instanceof CrenoPlanLimitError) {
     // err.limitType, err.plan
   } else {
@@ -73,19 +75,20 @@ try {
 
 All of the above extend `CrenoError` (`.statusCode`, `.responseBody`).
 
-This matches the [Python client](https://github.com/whythoughts/creno-python)'s exception taxonomy
-one-for-one, the same failure means the same thing to catch, in either
+These match the [Python client](https://github.com/whythoughts/creno-python)'s exceptions
+exactly. The same failure means the same thing to catch, in either
 language.
 
 ## Retries
 
-`listServiceTypes` and `getAvailability` (read-only, safe to repeat) are
-retried up to 3 times with exponential backoff on a network error or a
-5xx response. `createBooking` is never retried automatically: a lost
-response after the booking was actually created server-side, followed by
-a client-side retry, could submit a second real booking to a real
-customer, even though Creno's own database can never double-book the
-same slot.
+`listServiceTypes` and `getAvailability` only read, so they're safe to
+repeat. Both are retried up to 3 times with exponential backoff on a
+network error or a 5xx response.
+
+`createBooking` is never retried automatically. If the response is lost
+after the booking was already created on the server, retrying could
+submit a second real booking to a real customer, even though Creno's own
+database can never book the same slot twice.
 
 ## License
 

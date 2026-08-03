@@ -1,3 +1,6 @@
+// Base config: shared options, used by editors and vitest (which runs
+// straight off src/). The published build emits twice from this base, see
+// tsconfig.esm.json and tsconfig.cjs.json.
 {
   "compilerOptions": {
     "target": "ES2022",

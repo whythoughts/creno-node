@@ -1,0 +1,12 @@
+// CommonJS half of the dual build, so `require("@creno/node")` works from the
+// many Node backends that aren't ESM. Node10 resolution is what pairs with
+// module: CommonJS; it resolves the source's "./errors.js" specifiers to the
+// sibling emitted files just fine.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "outDir": "dist/cjs"
+  }
+}

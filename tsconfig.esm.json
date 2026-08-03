@@ -1,0 +1,10 @@
+// ESM half of the dual build. NodeNext honours the explicit ".js" extensions
+// the source already uses on relative imports, which real ESM requires.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist/esm"
+  }
+}

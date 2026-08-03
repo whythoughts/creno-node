@@ -1,6 +1,6 @@
 {
   "name": "@creno/node",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Official Node.js/TypeScript client for Creno's scheduling and booking API (https://crenoapp.com).",
   "license": "MIT",
   "keywords": ["booking", "scheduling", "appointment-scheduling", "api-client", "typescript"],
@@ -8,10 +8,21 @@
   "repository": { "type": "git", "url": "https://github.com/whythoughts/creno-node.git" },
   "bugs": "https://github.com/whythoughts/creno-node/issues",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -21,9 +32,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "dev": "tsc -p tsconfig.json --watch",
-    "test": "vitest run"
+    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && node scripts/fixup-dist.mjs",
+    "dev": "tsc -p tsconfig.esm.json --watch",
+    "test": "vitest run",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
