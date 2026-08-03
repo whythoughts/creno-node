@@ -1,9 +1,5 @@
 # Changelog
 
-All notable changes to `@creno/node` are documented here.
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-versioning follows [SemVer](https://semver.org/).
-
 ## [0.1.1] - 2026-08-03
 
 ### Changed
