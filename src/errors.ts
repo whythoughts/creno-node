@@ -23,8 +23,21 @@ export class CrenoAuthenticationError extends CrenoError {}
  * 403 - the request's Origin header isn't on the tenant's allowlist. This
  * client never sends an Origin header, so this shouldn't occur during
  * normal server-to-server use of this SDK.
+ *
+ * A suspended tenant also answers 403, as the subclass below. Catching this
+ * one still catches both.
  */
 export class CrenoForbiddenError extends CrenoError {}
+
+/**
+ * 403 with `code: "tenant_suspended"` - the business has been suspended and is
+ * not accepting bookings. Unlike the origin case above, this one *is* reachable
+ * from normal server-to-server use, and retrying will not help: the suspension
+ * is deliberate and only Créno can lift it.
+ *
+ * A subclass, so existing code catching CrenoForbiddenError is unaffected.
+ */
+export class CrenoTenantSuspendedError extends CrenoForbiddenError {}
 
 /** 404 - no matching resource, or no scheduling resource configured for this tenant. */
 export class CrenoNotFoundError extends CrenoError {}

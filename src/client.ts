@@ -4,6 +4,7 @@ import {
   CrenoConflictError,
   CrenoError,
   CrenoForbiddenError,
+  CrenoTenantSuspendedError,
   CrenoNotFoundError,
   CrenoPlanLimitError,
   CrenoRateLimitError,
@@ -179,8 +180,15 @@ export class CrenoClient {
     switch (response.status) {
       case 401:
         throw new CrenoAuthenticationError(message, { statusCode: 401, responseBody: body });
-      case 403:
+      case 403: {
+        // Switched on the body's `code`, not the message, which is prose and
+        // will be reworded eventually.
+        const b = body as { code?: string } | null;
+        if (b?.code === "tenant_suspended") {
+          throw new CrenoTenantSuspendedError(message, { statusCode: 403, responseBody: body });
+        }
         throw new CrenoForbiddenError(message, { statusCode: 403, responseBody: body });
+      }
       case 404:
         throw new CrenoNotFoundError(message, { statusCode: 404, responseBody: body });
       case 400:

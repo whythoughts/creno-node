@@ -6,6 +6,7 @@ export {
   CrenoConflictError,
   CrenoError,
   CrenoForbiddenError,
+  CrenoTenantSuspendedError,
   CrenoNotFoundError,
   CrenoPlanLimitError,
   CrenoRateLimitError,

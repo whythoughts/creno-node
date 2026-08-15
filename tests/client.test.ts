@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { CrenoClient } from "../src/client.js";
 import {
   CrenoConflictError,
+  CrenoForbiddenError,
   CrenoPlanLimitError,
+  CrenoTenantSuspendedError,
   CrenoRateLimitError,
   CrenoValidationError,
 } from "../src/errors.js";
@@ -128,5 +130,50 @@ describe("CrenoClient", () => {
       }),
     ).rejects.toThrow();
     expect(calls).toBe(1);
+  });
+});
+
+// A suspended tenant and a disallowed origin both answer 403, and a
+// server-to-server caller has to be able to tell them apart: one is a
+// configuration mistake, the other is the business being switched off, which
+// no amount of retrying fixes.
+describe("suspended tenants", () => {
+  function clientFor(body: unknown) {
+    return clientWith((async () => jsonResponse(403, body)) as unknown as typeof fetch);
+  }
+
+  it("raises CrenoTenantSuspendedError when the body says so", async () => {
+    await expect(clientFor({ error: "nope", code: "tenant_suspended" }).listServiceTypes()).rejects.toBeInstanceOf(
+      CrenoTenantSuspendedError,
+    );
+  });
+
+  it("is still a CrenoForbiddenError, so existing handlers are unaffected", async () => {
+    await expect(clientFor({ error: "nope", code: "tenant_suspended" }).listServiceTypes()).rejects.toBeInstanceOf(
+      CrenoForbiddenError,
+    );
+  });
+
+  it("leaves an origin 403 as the plain forbidden error", async () => {
+    await expect(
+      clientFor({ error: "Origin not allowed for this tenant", code: "origin_not_allowed" }).listServiceTypes(),
+    ).rejects.not.toBeInstanceOf(CrenoTenantSuspendedError);
+  });
+
+  it("does not sniff the message when there is no code", async () => {
+    await expect(clientFor({ error: "This business is suspended." }).listServiceTypes()).rejects.not.toBeInstanceOf(
+      CrenoTenantSuspendedError,
+    );
+  });
+
+  // 4xx is not retried, and a suspension least of all: the answer will be the
+  // same every time and each attempt is another request against a tenant that
+  // has been switched off.
+  it("is not retried", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse(403, { error: "nope", code: "tenant_suspended" }));
+    await expect(
+      clientWith(fetchMock as unknown as typeof fetch).listServiceTypes(),
+    ).rejects.toBeInstanceOf(CrenoTenantSuspendedError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
